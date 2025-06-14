@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{{ form_action }}">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ user.username if user else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" {% if not user %}required{% endif %}>
+                {% if user %}
+                <div class="form-text">Kosongkan jika tidak ingin mengubah password.</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select class="form-select" id="role" name="role" required>
+                    <option value="kasir" {{ 'selected' if user and user.role == 'kasir' }}>Kasir</option>
+                    <option value="admin" {{ 'selected' if user and user.role == 'admin' }}>Admin</option>
+                </select>
+            </div>
+            <a href="{{ url_for('users') }}" class="btn btn-secondary">Batal</a>
+            <button type="submit" class="btn btn-primary">Simpan</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

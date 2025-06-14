@@ -1,0 +1,130 @@
+{% extends 'layout.html' %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Pendapatan Hari Ini</h5>
+                        <p class="card-text fs-4 fw-bold">Rp {{ "{:,.0f}".format(pendapatan_hari_ini).replace(',', '.') }}</p>
+                    </div>
+                    <i class="bi bi-cash-stack fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Transaksi Hari Ini</h5>
+                        <p class="card-text fs-4 fw-bold">{{ transaksi_hari_ini }} Transaksi</p>
+                    </div>
+                    <i class="bi bi-receipt fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-graph-up"></i> Tren Penjualan 7 Hari Terakhir</div>
+            <div class="card-body">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Produk Stok Rendah</div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for produk in produk_stok_rendah %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ produk.nama }}
+                            <span class="badge bg-danger rounded-pill">{{ produk.stok }}</span>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item">Semua stok aman!</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-clock-history"></i> 5 Transaksi Terakhir</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr><th>ID</th><th>Tanggal</th><th>Kasir</th><th>Grand Total</th><th>Aksi</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for trx in transaksi_terakhir %}
+                            <tr>
+                                <td>{{ trx.id }}</td>
+                                <td>{{ trx.tanggal.strftime('%d %b %Y, %H:%M') }}</td>
+                                <td>{{ trx.nama_kasir }}</td>
+                                <td><strong>Rp {{ "{:,.0f}".format(trx.grand_total).replace(',', '.') }}</strong></td>
+                                <td><a href="{{ url_for('cetak_struk', transaction_id=trx.id) }}" class="btn btn-sm btn-outline-info" target="_blank">Lihat Struk</a></td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center">Belum ada transaksi.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ sales_labels | tojson }},
+            datasets: [{
+                label: 'Pendapatan (Rp)',
+                data: {{ sales_data | tojson }},
+                fill: true,
+                backgroundColor: 'rgba(74, 105, 189, 0.2)',
+                borderColor: 'rgba(74, 105, 189, 1)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+

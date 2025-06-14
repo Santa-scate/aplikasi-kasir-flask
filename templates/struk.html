@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Struk Transaksi #{{ trx.id }}</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; font-size: 12px; margin: 0; padding: 10px; }
+        .container { width: 280px; margin: auto; }
+        h3, p { text-align: center; margin: 5px 0; }
+        hr { border: none; border-top: 1px dashed #000; margin: 10px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 2px 0; }
+        .item-row td { vertical-align: top; }
+        .text-right { text-align: right; }
+        .footer { margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>Toko Kasir Pintar</h3>
+        <p>Jl. Kode Flask No. 123, Jakarta</p>
+        <hr>
+        <p>
+            No: {{ trx.id }}<br>
+            Kasir: {{ trx.nama_kasir }}<br>
+            Tanggal: {{ trx.tanggal.strftime('%d/%m/%Y %H:%M') }}
+        </p>
+        <hr>
+        <table>
+            <tbody>
+                {% for item in trx.details %}
+                <tr class="item-row">
+                    <td colspan="2">{{ item.product.nama }}</td>
+                </tr>
+                <tr class="item-row">
+                    <td>{{ item.jumlah }} x {{ "{:,.0f}".format(item.product.harga).replace(',', '.') }}</td>
+                    <td class="text-right">{{ "{:,.0f}".format(item.subtotal).replace(',', '.') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <hr>
+<table>
+    <tbody>
+        <tr>
+            <td>Subtotal</td>
+            <td class="text-right">{{ "{:,.0f}".format(trx.subtotal).replace(',', '.') }}</td>
+        </tr>
+        {% if trx.diskon > 0 %}
+        <tr>
+            <td>Diskon</td>
+            <td class="text-right">-{{ "{:,.0f}".format(trx.diskon).replace(',', '.') }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+            <td><strong>TOTAL</strong></td>
+            <td class="text-right"><strong>{{ "{:,.0f}".format(trx.grand_total).replace(',', '.') }}</strong></td>
+        </tr>
+    </tbody>
+</table>
+
+
+        <hr>
+        <div class="footer">
+            <p>Terima kasih telah berbelanja!</p>
+        </div>
+    </div>
+</body>
+</html>
+

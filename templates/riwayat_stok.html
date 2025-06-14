@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<a href="{{ url_for('produk') }}" class="btn btn-secondary mb-3"><i class="bi bi-arrow-left"></i> Kembali ke Daftar Produk</a>
+<div class="card">
+    <div class="card-header">
+        Riwayat Pergerakan Stok untuk <strong>{{ product.nama }}</strong>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Kegiatan</th>
+                    <th>Perubahan</th>
+                    <th>Stok Sebelum</th>
+                    <th>Stok Sesudah</th>
+                    <th>Oleh</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in history %}
+                <tr>
+                    <td>{{ item.tanggal_perubahan.strftime('%d-%m-%Y %H:%M') }}</td>
+                    <td><span class="badge {{ 'bg-danger' if item.tipe_kegiatan == 'Penjualan' else ('bg-success' if item.tipe_kegiatan == 'Penambahan Stok' else 'bg-warning text-dark') }}">{{ item.tipe_kegiatan }}</span></td>
+                    <td><strong>{{ '%+d' % item.jumlah_perubahan }}</strong></td>
+                    <td>{{ item.stok_sebelum }}</td>
+                    <td>{{ item.stok_sesudah }}</td>
+                    <td>{{ item.user.username if item.user else 'N/A' }}</td>
+                    <td>{{ item.keterangan }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">Belum ada riwayat stok untuk produk ini.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

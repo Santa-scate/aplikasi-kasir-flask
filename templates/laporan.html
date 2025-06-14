@@ -1,0 +1,158 @@
+{% extends 'layout.html' %}
+
+{% block page_title %}Laporan Penjualan{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        Filter Laporan
+    </div>
+    <div class="card-body">
+     <form method="GET" action="{{ url_for('laporan') }}">
+        <div class="row align-items-end">
+            <div class="col-md-4">
+                <label for="start_date" class="form-label">Tanggal Mulai</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+            </div>
+            <div class="col-md-4">
+                <label for="end_date" class="form-label">Tanggal Selesai</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Terapkan</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('export_laporan', start_date=start_date, end_date=end_date) }}" class="btn btn-success w-100">
+                    <i class="bi bi-file-earmark-excel-fill"></i> Excel
+                </a>
+            </div>
+          </div>
+      </form>
+   </div>
+ </div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-cash-stack"></i> Total Pendapatan</h5>
+                <p class="card-text fs-4">Rp {{ "{:,.0f}".format(statistik.total_pendapatan).replace(',', '.') }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-receipt"></i> Jumlah Transaksi</h5>
+                <p class="card-text fs-4">{{ statistik.jumlah_transaksi }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card text-white bg-warning h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-box-seam"></i> Barang Terjual</h5>
+                <p class="card-text fs-4">{{ statistik.total_barang_terjual }} unit</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-5 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-trophy-fill"></i> Top 5 Produk Terlaris
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nama Produk</th>
+                            <th>Total Terjual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in top_products %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ product.nama }}</td>
+                            <td>{{ product.total_terjual }} unit</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center">Tidak ada data penjualan pada periode ini.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-fill"></i> Grafik Penjualan Produk
+            </div>
+            <div class="card-body">
+                <canvas id="topProductsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ambil data dari variabel Flask yang di-render ke template
+        const labels = {{ top_products_labels | tojson }};
+        const data = {{ top_products_data | tojson }};
+
+        const ctx = document.getElementById('topProductsChart').getContext('2d');
+        const topProductsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Jumlah Terjual',
+                    data: data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)',
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false // Sembunyikan legenda karena sudah jelas dari judul
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{{ form_action }}">
+            <div class="mb-3">
+                <label for="kode_produk" class="form-label">Kode Produk</label>
+                <input type="text" class="form-control" id="kode_produk" name="kode_produk" value="{{ product.kode_produk if product else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="nama" class="form-label">Nama Produk</label>
+                <input type="text" class="form-control" id="nama" name="nama" value="{{ product.nama if product else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="harga" class="form-label">Harga (Rp)</label>
+                <input type="number" class="form-control" id="harga" name="harga" value="{{ product.harga if product else '' }}" required min="0">
+            </div>
+            <div class="mb-3">
+                <label for="stok" class="form-label">Stok Saat Ini</label>
+                <input type="number" class="form-control" id="stok" name="stok" value="{{ product.stok if product else '0' }}" readonly>
+                <div class="form-text">Stok saat ini hanya bisa diubah melalui menu "Koreksi Stok" di halaman Manajemen Produk.</div>
+           </div>
+           <div class="mb-3">
+                <label for="stok_minimum" class="form-label">Stok Minimum (Untuk Peringatan)</label>
+                <input type="number" class="form-control" id="stok_minimum" name="stok_minimum" value="{{ product.stok_minimum if product else '5' }}" required min="0">
+             </div>
+	     <div class="mb-3">
+                <label for="category_id" class="form-label">Kategori</label>
+                <select class="form-select" id="category_id" name="category_id" required>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {{ 'selected' if product and product.category_id == cat.id }}>
+                        {{ cat.nama }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <a href="{{ url_for('produk') }}" class="btn btn-secondary">Batal</a>
+            <button type="submit" class="btn btn-primary">Simpan</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
